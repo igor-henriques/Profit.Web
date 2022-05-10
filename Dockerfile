@@ -1,8 +1,14 @@
-FROM node:alpine AS build
+FROM node:latest AS build
 WORKDIR /app
-COPY . .
-RUN npm ci && npm run build
+COPY / ./
+COPY package*.json ./
 
-FROM nginx:alpine
-COPY /dist /usr/share/nginx/html
-EXPOSE 80
+RUN npm install -g @angular/cli && \
+  npm install && \
+  ng build
+
+COPY . .
+
+FROM nginx:latest
+WORKDIR /app
+COPY --from=build /app/dist/profit.web /usr/share/nginx/html
